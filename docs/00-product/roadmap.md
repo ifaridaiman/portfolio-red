@@ -23,17 +23,17 @@ Covers product milestones from current scaffold through v1 launch and post-launc
 The repository (`portfolio-red`) is a **Turborepo monorepo** with:
 
 - `apps/web` — production Next.js app (Docker / EC2 deploy target)
-- `apps/docs` — secondary Next.js app (development placeholder)
-- `packages/ui`, `packages/eslint-config`, `packages/typescript-config`
+- `packages/ui`, `packages/database`, `packages/ai`, `packages/eslint-config`, `packages/typescript-config`
 - AWS ECR → EC2 deployment pipeline
+- CI quality gates (lint, typecheck, build)
 
-Features, database, AI stack, and design system are **not yet implemented**. This roadmap assumes implementation follows the documentation system defined in `docs/`.
+M1 platform scaffold is complete. Feature implementation continues in M2+.
 
 ---
 
 ## Milestones
 
-### M0 — Documentation Foundation (Current)
+### M0 — Documentation Foundation
 
 **Deliverables**
 
@@ -45,9 +45,9 @@ Features, database, AI stack, and design system are **not yet implemented**. Thi
 
 **Definition of Done**
 
-- [ ] All required markdown files exist and pass internal review
-- [ ] Cross-references between docs resolve
-- [ ] ADRs marked Accepted for foundational decisions
+- [x] All required markdown files exist and pass internal review
+- [x] Cross-references between docs resolve
+- [x] ADRs marked Accepted for foundational decisions
 
 ---
 
@@ -65,13 +65,13 @@ Features, database, AI stack, and design system are **not yet implemented**. Thi
 
 **Definition of Done**
 
-- [ ] `pnpm dev` runs web with design tokens applied
-- [ ] Migrations apply cleanly on fresh database
-- [ ] CI runs lint, typecheck, and build
+- [x] `pnpm dev` runs web with design tokens applied
+- [x] Migrations apply cleanly on fresh database
+- [x] CI runs lint, typecheck, and build
 
 ---
 
-### M2 — Core Content Features
+### M2 — Core Content Features (Current)
 
 **Deliverables**
 
