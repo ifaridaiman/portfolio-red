@@ -15,8 +15,8 @@ Covers repository structure, Turborepo configuration, and inter-package dependen
 | `apps/web` | Production portfolio application |
 | `apps/docs` | Internal or public documentation site (optional) |
 | `packages/ui` | Shared React components and design primitives |
-| `packages/database` | Prisma schema, client, repositories (planned) |
-| `packages/ai` | AI gateway, prompts, retrieval (planned) |
+| `packages/database` | Prisma schema, client, repositories |
+| `packages/ai` | AI gateway, prompts, retrieval (skeleton) |
 | `packages/analytics` | Shared analytics utilities (planned) |
 | `packages/content` | MDX parsing, content helpers (planned) |
 | `packages/config` | Shared env and app configuration (planned) |
@@ -58,7 +58,7 @@ packages:
   - "packages/*"
 ```
 
-**Package manager:** `pnpm@9.0.0` with workspace protocol (`workspace:*`) for internal dependencies.
+**Package manager:** `pnpm@11.9.0` with workspace protocol (`workspace:*`) for internal dependencies.
 
 ---
 

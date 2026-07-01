@@ -1,11 +1,23 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "DIRECT_URL",
+    "AI_PROVIDER",
+    "AI_MODEL",
+    "AI_MAX_TOKENS",
+    "OPENAI_API_KEY",
+    "EMBEDDING_MODEL",
+    "AUTH_SECRET",
+    "ADMIN_EMAIL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "node_modules/.prisma/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

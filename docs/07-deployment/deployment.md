@@ -24,8 +24,8 @@ Deployment of `apps/web` to production. Database and observability setup include
 
 ### Prerequisites
 
-- Node.js ≥ 18 (20 recommended)
-- pnpm 9 (`corepack enable && corepack prepare pnpm@9.0.0 --activate`)
+- Node.js ≥ 26 (latest LTS/current recommended; see `.nvmrc`)
+- pnpm 11 (`corepack enable && corepack prepare pnpm@11.9.0 --activate`)
 - Docker (optional, for local PostgreSQL)
 
 ### Setup
@@ -34,7 +34,10 @@ Deployment of `apps/web` to production. Database and observability setup include
 git clone <repo-url>
 cd portfolio-red
 pnpm install
-cp .env.example .env   # when available
+cp .env.example .env
+pnpm db:up
+pnpm db:migrate
+pnpm db:seed
 pnpm dev
 ```
 
@@ -43,11 +46,19 @@ pnpm dev
 | web | http://localhost:3000 |
 | docs | http://localhost:3001 |
 
-### Local database (target)
+### Local database
 
 ```bash
-docker compose -f docker-compose.dev.yml up -d   # planned
-pnpm --filter @repo/database prisma migrate dev
+pnpm db:up
+pnpm db:migrate
+pnpm db:seed
+```
+
+Or with Docker Compose directly:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+pnpm --filter @repo/database db:deploy
 pnpm --filter @repo/database db:seed
 ```
 
