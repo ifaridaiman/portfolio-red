@@ -27,6 +27,7 @@ Before opening a PR:
 ### Implementation
 
 - [ ] Changes scoped to task; no unrelated refactors
+- [ ] Pages/actions thin; business logic in services
 - [ ] Server/Client boundaries correct
 - [ ] Inputs validated (Zod) at trust boundaries
 - [ ] No secrets or API keys in client code
@@ -68,9 +69,11 @@ Reviewer agent or human:
 
 ### Architecture
 
+- [ ] Conforms to [engineering architecture](../01-architecture/engineering-architecture.md)
+- [ ] Pages/actions thin; business logic in services
+- [ ] No Prisma in `apps/web` UI layers (repositories only)
 - [ ] Follows [monorepo](../01-architecture/monorepo.md) boundaries
 - [ ] LLM calls only via AI gateway
-- [ ] Prisma not used in Client Components
 - [ ] ADR present if needed
 
 ### Security
