@@ -4,6 +4,8 @@
 
 Define the Next.js frontend architecture for `apps/web`, including rendering strategy, routing conventions, and feature organization.
 
+**Must be read together with** [engineering-architecture.md](./engineering-architecture.md) — the primary reference for layers, thin files, and prohibited practices.
+
 ## Scope
 
 Covers `apps/web` only. Shared UI primitives live in `@repo/ui`; see [Frontend Standards](../05-standards/frontend-standards.md) and [Design System](../05-standards/design-system.md).
@@ -12,11 +14,12 @@ Covers `apps/web` only. Shared UI primitives live in `@repo/ui`; see [Frontend S
 
 | Layer | Responsibility |
 |-------|----------------|
-| App Router (`app/`) | Routes, layouts, loading/error boundaries |
-| Feature modules (`features/`) | Colocated UI, hooks, actions, and types per product feature |
-| `@repo/ui` | Reusable, stateless presentation components |
-| Server Components | Default data fetching and static rendering |
+| App Router (`app/`) | Thin routes — compose UI only |
+| Feature modules (`features/`) | Components, use cases, services, hooks, schemas |
+| `@repo/ui` | Atoms and molecules only (no business logic) |
+| Server Components | Default; invoke use cases or services for data |
 | Client Components | Interactivity, browser APIs, AI streaming UI |
+| Server Actions | Validate input; invoke use case; return response |
 
 ---
 
@@ -66,8 +69,8 @@ apps/web/
 
 | Convention | Rule |
 |------------|------|
-| Route files | Thin — compose feature components, minimal logic |
-| Data fetching | Server Components and Server Actions by default |
+| Route files | Thin — compose feature components; call use cases only |
+| Server Actions | Validate (Zod) → use case → response; no business logic |
 | Metadata | `export const metadata` or `generateMetadata` per route |
 | Loading | `loading.tsx` for route-level suspense |
 | Errors | `error.tsx` with recovery actions |
@@ -83,12 +86,12 @@ Default choice for:
 - SEO-critical HTML
 
 ```tsx
-// app/projects/page.tsx (example)
+// app/projects/page.tsx (example — thin page)
 import { ProjectList } from "@/features/projects/components/project-list";
-import { getProjects } from "@/features/projects/queries";
+import { listProjectsUseCase } from "@/features/projects/use-cases/list-projects.use-case";
 
 export default async function ProjectsPage() {
-  const projects = await getProjects();
+  const projects = await listProjectsUseCase();
   return <ProjectList projects={projects} />;
 }
 ```
@@ -96,8 +99,9 @@ export default async function ProjectsPage() {
 **Rules:**
 
 - No `useState`, `useEffect`, or event handlers in Server Components
+- **No Prisma** in pages, layouts, or components
 - Pass serializable props to Client Components
-- Use `cache()` and `React.cache` for deduplicated reads within a request
+- Use `cache()` for deduplicated reads within a request
 
 ---
 
@@ -137,11 +141,13 @@ export function ChatPanel() {
 ```mermaid
 flowchart LR
     Request[HTTP Request] --> Router[App Router]
-    Router --> SC[Server Component]
-    SC --> DB[(PostgreSQL)]
+    Router --> SC[Server Component / Page]
+    SC --> UC[Use Case]
     Router --> CC[Client Component]
-    CC --> API[Server Action / Route Handler]
-    API --> AI[AI Gateway]
+    CC --> Action[Server Action]
+    Action --> UC
+    UC --> SVC[Service]
+    SVC --> REPO[Repository]
 ```
 
 ### Caching
@@ -172,28 +178,41 @@ flowchart LR
 
 ## Feature Organization
 
-Each feature under `features/<name>/` may contain:
+Each feature under `features/<name>/` follows [engineering-architecture.md](./engineering-architecture.md):
 
 ```text
 features/projects/
-├── components/       # Feature-specific components
+├── components/       # Organisms+ (business UI only)
+├── services/         # Business rules
+├── use-cases/        # Application orchestration
 ├── hooks/            # Client hooks
-├── actions/          # Server Actions
-├── queries/          # Data access (calls @repo/database)
-├── types.ts
-└── utils.ts
+├── schemas/          # Zod validation
+├── actions/          # Thin Server Actions
+├── types/
+├── constants/
+├── utils/
+├── tests/
+└── assets/
 ```
 
-**Colocation principle:** Everything needed to understand "projects" lives under `features/projects/` except shared primitives in `@repo/ui`.
+**Colocation principle:** Everything needed to understand "projects" lives under `features/projects/` except atoms/molecules in `@repo/ui` and repositories in `@repo/database`.
 
-Cross-feature imports should go through public feature APIs (`features/projects/index.ts`), not deep paths.
+Cross-feature imports go through public feature APIs (`features/projects/index.ts`), not deep paths.
+
+### Atomic Design boundary
+
+| Location | Contains |
+|----------|----------|
+| `@repo/ui` | Atoms, molecules (Button, Input, Form Field, Tag) |
+| `features/*/components/` | Organisms and templates (ProjectHero, ChatWindow) |
 
 ---
 
 ## Best Practices
 
 - Prefer Server Components; add `"use client"` only when necessary.
-- Co-locate feature code; avoid a global `services/` dumping ground.
+- Keep pages and actions thin; business logic in services.
+- Co-locate feature code; never access Prisma from UI layers.
 - Use `next/image` for all content images with explicit dimensions.
 - Implement `generateMetadata` for all public content pages.
 - Test keyboard navigation on every interactive feature.
@@ -204,11 +223,15 @@ Cross-feature imports should go through public feature APIs (`features/projects/
 
 **Good:** `features/digital-twin/components/chat-input.tsx` is a small Client Component at the leaf.
 
-**Avoid:** Making `app/layout.tsx` a Client Component to avoid prop drilling — use composition instead.
+**Avoid:** `ProjectCard.tsx` calling Prisma or containing publish business rules.
+
+**Avoid:** Making `app/layout.tsx` a Client Component — use composition instead.
 
 ## Anti-patterns
 
-- Fetching in `useEffect` what could be fetched in a Server Component.
+- Business logic in components, pages, or layouts
+- Prisma imports in `apps/web` feature code (use repositories)
+- Fetching in `useEffect` what a Server Component + use case can handle
 - Giant `components/` folder with no feature affiliation.
 - Importing admin code into public bundles (split routes and use dynamic imports).
 - Client-side-only rendering of article content (hurts SEO and a11y).
@@ -221,7 +244,9 @@ Cross-feature imports should go through public feature APIs (`features/projects/
 
 ## References
 
+- [Engineering Architecture](./engineering-architecture.md)
 - [ADR-0002: Next.js App Router](../04-adr/0002-nextjs.md)
+- [ADR-0006: Layered Architecture](../04-adr/0006-layered-architecture.md)
 - [ADR-0003: shadcn/ui](../04-adr/0003-shadcn.md)
 - [Monorepo](./monorepo.md)
 - [Frontend Standards](../05-standards/frontend-standards.md)

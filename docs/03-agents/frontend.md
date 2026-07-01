@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Implement accessible, performant user interfaces in `apps/web` and shared components in `@repo/ui` according to design and architecture standards.
+Implement accessible, performant user interfaces per [engineering architecture](../01-architecture/engineering-architecture.md) — components render UI only; no business logic.
 
 ## Scope
 

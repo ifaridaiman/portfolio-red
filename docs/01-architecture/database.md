@@ -6,7 +6,7 @@ Define the data layer: Prisma ORM, PostgreSQL, pgvector extension, schema organi
 
 ## Scope
 
-Covers `packages/database` (planned) and PostgreSQL usage across the platform. AI-specific retrieval tables are shared with [rag.md](./rag.md).
+Covers `packages/database` (planned) and PostgreSQL usage across the platform. **Layering rules:** [engineering-architecture.md](./engineering-architecture.md). AI-specific retrieval tables are shared with [rag.md](./rag.md).
 
 ## Responsibilities
 
@@ -14,7 +14,8 @@ Covers `packages/database` (planned) and PostgreSQL usage across the platform. A
 |-----------|----------------|
 | Prisma schema | Single source of truth for models and relations |
 | Migrations | Versioned SQL applied in order |
-| Prisma Client | Type-safe queries from apps and packages |
+| Repositories | Intent-based data access; isolate Prisma from features |
+| Prisma Client | Type-safe queries — used only inside repositories |
 | PostgreSQL | Primary datastore |
 | pgvector | Vector similarity for RAG |
 | Seed scripts | Development and demo data |
@@ -41,13 +42,17 @@ packages/database/
 │   ├── migrations/
 │   └── seed.ts
 ├── src/
-│   ├── client.ts          # Singleton Prisma client
-│   ├── queries/           # Shared query modules (optional)
+│   ├── client.ts              # Singleton Prisma client
+│   ├── repositories/
+│   │   ├── project.repository.ts
+│   │   ├── article.repository.ts
+│   │   ├── chat.repository.ts
+│   │   └── ...
 │   └── index.ts
 └── package.json
 ```
 
-Export `@repo/database` for use in `apps/web` and `packages/ai`.
+Export `@repo/database` for use in feature **services** (via repositories). **Never** export Prisma client for direct use in `apps/web` pages or components.
 
 ---
 
@@ -162,14 +167,50 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 ---
 
+## Repository Pattern
+
+Repositories are the **only** layer that imports Prisma (except infrastructure utilities in `@repo/ai` for vector search).
+
+### Repository responsibilities
+
+- Intent-based query methods (`findPublishedProjects`, `createConversation`)
+- Transactions spanning multiple tables
+- Mapping Prisma models to domain types when they differ
+
+### Repository prohibitions
+
+- Business rules (e.g., "can publish" — belongs in service)
+- Zod validation
+- Authorization decisions
+- AI prompt construction
+
+```typescript
+// packages/database/src/repositories/project.repository.ts
+export class ProjectRepository {
+  constructor(private readonly db = prisma) {}
+
+  findPublishedProjects() {
+    return this.db.project.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { publishedAt: "desc" },
+    });
+  }
+}
+```
+
+---
+
 ## Access Patterns
 
 | Pattern | Location |
 |---------|----------|
-| Simple CRUD in one feature | `features/*/queries/*.ts` calling Prisma |
-| Shared complex queries | `packages/database/src/queries/` |
-| Transactions | `prisma.$transaction()` in Server Actions |
-| Vector search | Raw SQL via `$queryRaw` with parameterized embeddings |
+| Business logic | `features/*/services/` |
+| Orchestration | `features/*/use-cases/` |
+| Data access | `packages/database/src/repositories/` |
+| Transactions | Repository methods or `prisma.$transaction()` inside repositories |
+| Vector search | Repository or `@repo/ai` retriever via `$queryRaw` |
+
+**Prohibited:** Prisma imports in `apps/web` pages, components, layouts, or hooks.
 
 ### Client singleton
 
@@ -203,16 +244,20 @@ Document all vars in `.env.example` at repo root.
 - Use `cuid()` or `uuid()` for public IDs; slugs for URLs with unique constraints.
 - Index foreign keys and frequent filter columns (`status`, `publishedAt`, `slug`).
 - Soft-delete via `status` enum where audit trail matters.
-- Never expose Prisma client to Client Components.
+- Never expose Prisma client to `apps/web` UI layers or Client Components.
+- Repositories expose intent-based APIs, not raw Prisma passthrough.
 - Use `select` and `include` intentionally to avoid over-fetching.
 
 ## Examples
 
-**Publish article:** Update `status` and `publishedAt`, trigger RAG ingestion job.
+**Publish article:** `PublishArticleUseCase` → `ArticleService.publish()` → `ArticleRepository.updateStatus()` → trigger ingestion.
 
-**Contact form:** Insert `ContactSubmission` in Server Action with rate limit check.
+**Contact form:** `SubmitContactUseCase` → `ContactService` → `ContactRepository.create()` (validation in action before use case).
 
 ## Anti-patterns
+
+- Prisma calls in Server Actions beyond passing to use case (action should not query directly)
+- Business rules in repositories
 
 - Raw SQL string concatenation (SQL injection risk).
 - Storing embeddings as JSON blobs without pgvector indexes.
@@ -228,7 +273,9 @@ Document all vars in `.env.example` at repo root.
 
 ## References
 
+- [Engineering Architecture](./engineering-architecture.md)
 - [ADR-0004: Prisma + PostgreSQL](../04-adr/0004-prisma.md)
+- [ADR-0006: Layered Architecture](../04-adr/0006-layered-architecture.md)
 - [ADR-0005: RAG with pgvector](../04-adr/0005-rag.md)
 - [RAG Architecture](./rag.md)
 - [Monorepo](./monorepo.md)

@@ -20,7 +20,7 @@ Before opening a PR:
 
 ### Planning
 
-- [ ] Read relevant feature `brief.md`, `ux.md`, `technical.md`, `acceptance.md`
+- [ ] Read [engineering architecture](../01-architecture/engineering-architecture.md) and relevant feature docs
 - [ ] Confirm ADR if architectural decision introduced
 - [ ] Branch named per [branching.md](./branching.md)
 

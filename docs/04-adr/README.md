@@ -27,6 +27,7 @@ All ADRs live in `docs/04-adr/`. New decisions use [template.md](./template.md).
 | [0003](./0003-shadcn.md) | shadcn/ui + Tailwind for design system | Accepted |
 | [0004](./0004-prisma.md) | Prisma with PostgreSQL | Accepted |
 | [0005](./0005-rag.md) | RAG with pgvector in PostgreSQL | Accepted |
+| [0006](./0006-layered-architecture.md) | Layered architecture (use case, service, repository) | Accepted |
 
 ---
 

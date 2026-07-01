@@ -15,6 +15,7 @@ Monorepo structure, cross-cutting concerns, ADRs, package boundaries, data and A
 - Define and maintain architecture documents in `docs/01-architecture/`
 - Author and review Architecture Decision Records (ADRs)
 - Enforce dependency boundaries between apps and packages
+- Enforce [engineering architecture](../01-architecture/engineering-architecture.md) as the primary reference
 - Align new features with [engineering principles](../00-product/engineering-principles.md)
 - Review scalability, security, and operability of proposed designs
 
@@ -35,9 +36,11 @@ When uncertain, prefer **simplicity** and document trade-offs in an ADR.
 Review checklist:
 
 - [ ] Fits feature-first layout in `apps/web/features/`
+- [ ] Pages/actions are thin; business logic in services
+- [ ] Data access through repositories in `@repo/database` (no Prisma in UI)
+- [ ] Use cases orchestrate multi-step workflows
 - [ ] No circular package dependencies
 - [ ] Server/client boundary is correct
-- [ ] Data access goes through `@repo/database`
 - [ ] LLM access goes through `@repo/ai` gateway only
 - [ ] Observability hooks planned (logs, metrics)
 - [ ] Migration strategy defined for schema changes
@@ -104,6 +107,7 @@ Items needing human decision.
 
 ## References
 
+- [Engineering Architecture](../01-architecture/engineering-architecture.md)
 - [Monorepo Architecture](../01-architecture/monorepo.md)
 - [ADR Index](../04-adr/README.md)
 - [Engineering Principles](../00-product/engineering-principles.md)

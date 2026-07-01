@@ -6,7 +6,7 @@ Define TypeScript and general code conventions for the AI Engineering Portfolio 
 
 ## Scope
 
-All `apps/*` and `packages/*` TypeScript/JavaScript code. Frontend-specific UI rules extend [frontend-standards.md](./frontend-standards.md).
+All `apps/*` and `packages/*` TypeScript/JavaScript code. **Architecture layering** is defined in [engineering-architecture.md](../01-architecture/engineering-architecture.md). Frontend-specific UI rules extend [frontend-standards.md](./frontend-standards.md).
 
 ## Responsibilities
 
@@ -28,13 +28,13 @@ All `apps/*` and `packages/*` TypeScript/JavaScript code. Frontend-specific UI r
 - Enable `noUncheckedIndexedAccess` (already in base config)
 
 ```typescript
-// Good
+// Good — service uses repository, not Prisma in app code
 export async function getProject(slug: string): Promise<Project | null> {
-  return prisma.project.findUnique({ where: { slug } });
+  return projectRepository.findBySlug(slug);
 }
 
-// Avoid
-export async function getProject(slug: any) {
+// Avoid — Prisma in apps/web
+export async function getProject(slug: string) {
   return prisma.project.findUnique({ where: { slug } });
 }
 ```
@@ -48,7 +48,11 @@ export async function getProject(slug: any) {
 | Files (components) | kebab-case | `project-card.tsx` |
 | Files (utils) | kebab-case | `format-date.ts` |
 | React components | PascalCase | `ProjectCard` |
-| Functions/variables | camelCase | `getProjects` |
+| Files (use cases) | kebab-case + suffix | `publish-project.use-case.ts` |
+| Files (services) | kebab-case + suffix | `project.service.ts` |
+| Services | PascalCase + Service | `ProjectService` |
+| Repositories | PascalCase + Repository | `ProjectRepository` |
+| Use cases | camelCase functions | `publishProjectUseCase` |
 | Constants | SCREAMING_SNAKE or camelCase for config objects | `MAX_MESSAGE_LENGTH` |
 | Types/interfaces | PascalCase | `ProjectSummary` |
 | DB tables (Prisma) | PascalCase models, camelCase fields | `Project.publishedAt` |
@@ -82,7 +86,8 @@ import { ProjectCard } from "@/features/projects/components/project-card";
 
 ## Folder Organization
 
-- Feature code under `apps/web/features/<feature>/`
+- Feature code under `apps/web/features/<feature>/` (see [engineering-architecture.md](../01-architecture/engineering-architecture.md))
+- Repositories under `packages/database/src/repositories/`
 - Shared app utilities in `apps/web/lib/`
 - Cross-app shared code in `packages/`
 - Tests colocated: `*.test.ts` next to source or in `__tests__/`
@@ -92,7 +97,7 @@ import { ProjectCard } from "@/features/projects/components/project-card";
 ## Error Handling
 
 - Fail fast on programmer errors; handle user errors gracefully
-- Server Actions return `{ success: true, data }` or `{ success: false, error }`
+- Server Actions return typed results; delegate to use cases after Zod validation
 - Log unexpected errors with context (request ID); never log secrets
 - Use custom error classes sparingly (`NotFoundError`, `ValidationError`)
 - Zod for input validation at boundaries
@@ -112,6 +117,32 @@ if (!parsed.success) {
 - `console.log` only in development
 - PII redaction before logging contact messages
 - AI logs: model, tokens, latency — not full prompts in production info logs
+
+---
+
+## Validation Flow
+
+Per [engineering-architecture.md](../01-architecture/engineering-architecture.md):
+
+```text
+Request → Zod (schemas/) → Use Case → Service → Repository → Prisma
+```
+
+- Schemas in `features/<name>/schemas/`
+- Validate in Server Actions and route handlers before use cases
+- Services assume validated input
+
+---
+
+## Prohibited Practices
+
+Never (see engineering architecture for full list):
+
+- Business logic in components, pages, or layouts
+- Prisma imports in `apps/web`
+- Feature code imported by `packages/*`
+- Duplicated business logic across features
+- Direct LLM SDK usage outside `@repo/ai`
 
 ---
 
@@ -159,6 +190,7 @@ if (!parsed.success) {
 
 ## References
 
+- [Engineering Architecture](../01-architecture/engineering-architecture.md)
 - [Frontend Standards](./frontend-standards.md)
 - [Testing](./testing.md)
 - [Engineering Principles](../00-product/engineering-principles.md)

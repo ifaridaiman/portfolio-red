@@ -6,7 +6,7 @@ Standards for React components, hooks, styling, and frontend quality in `apps/we
 
 ## Scope
 
-UI implementation. Complements [design-system.md](./design-system.md) and [frontend architecture](../01-architecture/frontend.md).
+UI implementation. Complements [design-system.md](./design-system.md), [frontend architecture](../01-architecture/frontend.md), and [engineering architecture](../01-architecture/engineering-architecture.md).
 
 ## Responsibilities
 
@@ -15,6 +15,15 @@ Frontend agent and human contributors implement UI per these standards.
 ---
 
 ## Component Rules
+
+### Layer separation
+
+- **No business logic** in components — UI rendering only
+- **No Prisma or repository** imports in components
+- **No AI provider** imports in components
+- Components receive data via props from pages or hooks that call Server Actions
+
+### File conventions
 
 - **One component per file** (except colocated small subcomponents)
 - Server Component by default; `"use client"` only when needed
@@ -47,7 +56,20 @@ export function ProjectCard({ title, slug, excerpt }: ProjectCardProps) {
 - Prefix custom hooks with `use`
 - Hooks only in Client Components or other hooks
 - Return stable shapes; memoize callbacks passed to heavy children when profiled
-- Data fetching hooks are rare — prefer Server Components
+- Data fetching hooks are rare — prefer Server Components + use cases
+
+---
+
+## Atomic Design
+
+Follow [engineering-architecture.md](../01-architecture/engineering-architecture.md):
+
+| Location | Level | Examples |
+|----------|-------|----------|
+| `@repo/ui` | Atoms, molecules | Button, Input, Form Field, Tag, Metric Card |
+| `features/*/components/` | Organisms+ | ProjectHero, ChatWindow, ConversationPanel |
+
+**Rule:** If a component requires business knowledge to render, it belongs in the feature — not `@repo/ui`.
 
 ```tsx
 "use client";
@@ -138,6 +160,7 @@ export function useChat(sessionId: string) {
 
 ## References
 
+- [Engineering Architecture](../01-architecture/engineering-architecture.md)
 - [Design System](./design-system.md)
 - [Frontend Architecture](../01-architecture/frontend.md)
 - [ADR-0003: shadcn](./../04-adr/0003-shadcn.md)

@@ -6,7 +6,7 @@ Describe how the AI Engineering Portfolio Platform is organized as a Turborepo m
 
 ## Scope
 
-Covers repository structure, Turborepo configuration, and inter-package dependencies. Application-specific frontend patterns are in [frontend.md](./frontend.md).
+Covers repository structure, Turborepo configuration, and inter-package dependencies. **Primary architecture reference:** [engineering-architecture.md](./engineering-architecture.md). Application-specific frontend patterns are in [frontend.md](./frontend.md).
 
 ## Responsibilities
 
@@ -15,8 +15,12 @@ Covers repository structure, Turborepo configuration, and inter-package dependen
 | `apps/web` | Production portfolio application |
 | `apps/docs` | Internal or public documentation site (optional) |
 | `packages/ui` | Shared React components and design primitives |
-| `packages/database` | Prisma schema, client, migrations (planned) |
+| `packages/database` | Prisma schema, client, repositories (planned) |
 | `packages/ai` | AI gateway, prompts, retrieval (planned) |
+| `packages/analytics` | Shared analytics utilities (planned) |
+| `packages/content` | MDX parsing, content helpers (planned) |
+| `packages/config` | Shared env and app configuration (planned) |
+| `packages/types` | Shared domain types (planned) |
 | `packages/eslint-config` | Shared ESLint configuration |
 | `packages/typescript-config` | Shared TypeScript configuration |
 | Root | Workspace scripts, Turborepo pipeline, Docker build |
@@ -69,6 +73,10 @@ portfolio-red/
 │   ├── ui/                  # @repo/ui
 │   ├── database/            # @repo/database (planned)
 │   ├── ai/                  # @repo/ai (planned)
+│   ├── analytics/           # @repo/analytics (planned)
+│   ├── content/             # @repo/content (planned)
+│   ├── config/              # @repo/config (planned)
+│   ├── types/               # @repo/types (planned)
 │   ├── eslint-config/       # @repo/eslint-config
 │   └── typescript-config/   # @repo/typescript-config
 ├── docs/                    # Project documentation (this tree)
@@ -104,7 +112,7 @@ portfolio-red/
 ### `packages/database` (planned)
 
 - Prisma schema and generated client
-- Shared query helpers and transaction utilities
+- **Repositories** for intent-based data access
 - Migration history as source of truth for PostgreSQL schema
 
 ### `packages/ai` (planned)
@@ -112,6 +120,25 @@ portfolio-red/
 - Provider abstraction (OpenAI, Anthropic, etc.)
 - Prompt builder, RAG retrieval, streaming helpers
 - Token accounting hooks
+
+### `packages/analytics` (planned)
+
+- Event types, aggregation helpers
+- Privacy-conscious analytics utilities
+
+### `packages/content` (planned)
+
+- MDX compilation and content parsing
+- Shared content transformers for articles/projects
+
+### `packages/config` (planned)
+
+- Validated environment configuration (Zod)
+- Shared constants across apps
+
+### `packages/types` (planned)
+
+- Shared domain types not tied to Prisma models
 
 ### `packages/eslint-config` & `packages/typescript-config`
 
@@ -149,6 +176,7 @@ flowchart BT
 |------|-------------|
 | `packages/ui` must not import from `apps/*` | ESLint import boundaries |
 | `packages/database` must not import from `apps/*` or `packages/ai` | Layering |
+| Feature code in `apps/web` must not import Prisma directly | Use repositories |
 | `packages/ai` may import `packages/database` for retrieval metadata | Documented exception |
 | Apps may import packages; packages never import apps | Strict |
 | No circular dependencies between packages | `pnpm` + manual review |
@@ -218,6 +246,7 @@ pnpm exec turbo dev --filter=web
 
 ## References
 
+- [Engineering Architecture](./engineering-architecture.md)
 - [ADR-0001: Monorepo with Turborepo](../04-adr/0001-monorepo.md)
 - [Frontend Architecture](./frontend.md)
 - [Deployment](../07-deployment/deployment.md)

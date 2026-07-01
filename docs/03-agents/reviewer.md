@@ -20,10 +20,13 @@ All pull requests touching application code, packages, infrastructure, and docum
 
 ### Architecture review
 
+- Conforms to [engineering architecture](../01-architecture/engineering-architecture.md)
+- Pages and Server Actions are thin; business logic in services
+- No Prisma in `apps/web` UI layers — repositories only
 - Server/Client boundary respected
 - Package dependency rules per [monorepo.md](../01-architecture/monorepo.md)
 - No LLM calls outside AI gateway
-- Database access patterns match [database.md](../01-architecture/database.md)
+- Atomic design: business UI in features, atoms/molecules in `@repo/ui`
 - Flag needs for new ADR when patterns change
 
 ### Security review
@@ -86,6 +89,8 @@ Optional improvements.
 
 ## Examples
 
+**Blocker:** `prisma` imported in a page or component.
+
 **Blocker:** `OPENAI_API_KEY` imported in Client Component.
 
 **Major:** Contact form missing server-side validation.
@@ -105,6 +110,7 @@ Optional improvements.
 
 ## References
 
+- [Engineering Architecture](../01-architecture/engineering-architecture.md)
 - [Code Style](../05-standards/code-style.md)
 - [Development Checklist](../06-development/checklist.md)
 - [Branching](../06-development/branching.md)

@@ -147,6 +147,7 @@ Shared `components/`, `lib/`, and `packages/` support features — features do n
 
 ## References
 
+- **[Engineering Architecture](../01-architecture/engineering-architecture.md)** — primary implementation reference
 - [Vision](./vision.md)
 - [Code Style](../05-standards/code-style.md)
 - [Frontend Standards](../05-standards/frontend-standards.md)

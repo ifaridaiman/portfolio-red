@@ -6,7 +6,7 @@ Define visual language, tokens, and component guidelines for a cohesive portfoli
 
 ## Scope
 
-Design tokens and component usage for `apps/web` and `@repo/ui`. Implementation via Tailwind + shadcn/ui per [ADR-0003](../04-adr/0003-shadcn.md).
+Design tokens and component usage for `apps/web` and `@repo/ui`. Component layering follows Atomic Design per [engineering-architecture.md](../01-architecture/engineering-architecture.md). Implementation via Tailwind + shadcn/ui per [ADR-0003](../04-adr/0003-shadcn.md).
 
 ## Responsibilities
 
@@ -15,6 +15,19 @@ Design tokens and component usage for `apps/web` and `@repo/ui`. Implementation 
 | Frontend agent | Apply tokens; extend `@repo/ui` |
 | Designer / owner | Approve brand colors and typography |
 | All contributors | Avoid one-off styles outside tokens |
+
+---
+
+## Atomic Design
+
+| Level | Package / Location | Responsibility |
+|-------|-------------------|----------------|
+| **Atoms** | `@repo/ui` | Button, Input, Badge, Icon, Avatar |
+| **Molecules** | `@repo/ui` | Search Box, Form Field, Metric Card, Breadcrumb, Tag |
+| **Organisms** | `features/*/components/` | ProjectHero, ChatWindow, ConversationPanel |
+| **Templates / Pages** | `app/` + feature composition | Route-level layout assembly |
+
+**Shared UI must not contain business-specific knowledge.** Feature organisms compose atoms and molecules from `@repo/ui`.
 
 ---
 
@@ -170,6 +183,7 @@ Extend with compound components in features, not forks of primitives.
 
 ## References
 
+- [Engineering Architecture](../01-architecture/engineering-architecture.md)
 - [Frontend Standards](./frontend-standards.md)
 - [ADR-0003: shadcn](../04-adr/0003-shadcn.md)
 - [shadcn/ui theming](https://ui.shadcn.com/docs/theming)

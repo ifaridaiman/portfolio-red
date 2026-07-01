@@ -6,7 +6,7 @@ Describe the AI subsystem: gateway, prompt construction, retrieval integration, 
 
 ## Scope
 
-Covers server-side AI infrastructure in `packages/ai` and its consumption from `apps/web`. RAG pipeline details are in [rag.md](./rag.md).
+Covers server-side AI infrastructure in `packages/ai` and its consumption from `apps/web` via **use cases and services** — never from UI components directly. See [engineering-architecture.md](./engineering-architecture.md). RAG pipeline details are in [rag.md](./rag.md).
 
 ## Responsibilities
 
@@ -18,6 +18,25 @@ Covers server-side AI infrastructure in `packages/ai` and its consumption from `
 | Provider Adapter | Normalize OpenAI, Anthropic, and other APIs |
 | Token Accountant | Count and persist usage for cost monitoring |
 | Stream Handler | SSE/chunk streaming to clients |
+
+---
+
+## Application Layer Flow
+
+AI is invoked through the same layered flow as other features:
+
+```text
+Page / Client → Server Action → Chat Use Case → Chat Service → AI Gateway → Retriever → Prompt Builder → LLM → Formatter
+```
+
+| Layer | Location | Role |
+|-------|----------|------|
+| Server Action | `features/digital-twin/actions/` | Zod validation; invoke use case |
+| Use Case | `features/digital-twin/use-cases/` | Orchestrate chat session, persistence |
+| Chat Service | `features/digital-twin/services/` or `@repo/ai` | Business rules; call gateway |
+| AI Gateway | `packages/ai` | Provider calls, rate limits, streaming |
+
+**Pages and components must never call AI providers directly.**
 
 ---
 
@@ -33,6 +52,7 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     Client->>Web: Chat message
+    Web->>Web: Server Action + Use Case
     Web->>Gateway: chat(request)
     Gateway->>Gateway: Rate limit + validate
     Gateway->>RAG: retrieve(query)
@@ -214,6 +234,7 @@ Switch providers via `AI_PROVIDER` without changing feature code. Model-specific
 
 ## References
 
+- [Engineering Architecture](./engineering-architecture.md)
 - [RAG Architecture](./rag.md)
 - [AI Standards](../05-standards/ai-standards.md)
 - [ADR-0005: RAG with pgvector](../04-adr/0005-rag.md)

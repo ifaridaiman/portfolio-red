@@ -9,7 +9,7 @@ Entry point for the AI Engineering Portfolio Platform documentation system.
 | Directory | Contents |
 |-----------|----------|
 | [00-product](./00-product/) | Vision, roadmap, engineering principles |
-| [01-architecture](./01-architecture/) | Monorepo, frontend, AI, RAG, database |
+| [01-architecture](./01-architecture/) | **Engineering architecture** (primary), monorepo, frontend, AI, RAG, database |
 | [02-features](./02-features/) | Per-feature brief, UX, technical, acceptance, tasks |
 | [03-agents](./03-agents/) | AI agent role definitions |
 | [04-adr](./04-adr/) | Architecture Decision Records |
@@ -20,11 +20,12 @@ Entry point for the AI Engineering Portfolio Platform documentation system.
 
 ## Quick Start for Agents
 
-1. Read [vision](./00-product/vision.md) and [engineering principles](./00-product/engineering-principles.md)
-2. Check [roadmap](./00-product/roadmap.md) for milestone context
-3. Implement features using `02-features/<name>/` specs
-4. Follow [standards](./05-standards/) and relevant [ADRs](./04-adr/)
-5. Use [checklist](./06-development/checklist.md) before opening PRs
+1. Read **[engineering architecture](./01-architecture/engineering-architecture.md)** — primary implementation reference
+2. Read [vision](./00-product/vision.md) and [engineering principles](./00-product/engineering-principles.md)
+3. Check [roadmap](./00-product/roadmap.md) for milestone context
+4. Implement features using `02-features/<name>/` specs
+5. Follow [standards](./05-standards/) and relevant [ADRs](./04-adr/)
+6. Use [checklist](./06-development/checklist.md) before opening PRs
 
 ## References
 

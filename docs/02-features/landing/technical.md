@@ -23,24 +23,37 @@ Architecture, data flow, APIs, and integration points. Does not duplicate global
 
 ## Module Structure
 
+Per [engineering-architecture.md](../../01-architecture/engineering-architecture.md):
+
 ```text
 features/landing/
-├── components/
-├── actions/          # Server Actions (if needed)
-├── queries/          # Data access
-├── hooks/            # Client hooks (if needed)
-├── types.ts
-└── utils.ts
+├── components/       # Organisms+ (business UI)
+├── services/         # Business rules
+├── use-cases/        # Application orchestration
+├── hooks/            # Client interaction
+├── schemas/          # Zod validation
+├── actions/          # Thin Server Actions
+├── types/
+├── constants/
+├── utils/
+├── tests/
+└── assets/
 ```
 
 ## Data Model
 
-Refer to [database.md](../../01-architecture/database.md). Feature-specific models will be added during M1/M2 implementation.
+Repositories in `@repo/database`; services consume repositories. See [database.md](../../01-architecture/database.md).
+
+## Layer Flow
+
+```text
+Page → Use Case → Service → Repository → Prisma
+```
 
 ## Server vs Client
 
-- **Server Components:** Default for pages and read-only UI
-- **Client Components:** Forms with rich client validation, chat, interactive filters
+- **Server Components:** Default; call use cases for data
+- **Client Components:** Interaction only — no business logic or Prisma
 
 ## API / Server Actions
 
@@ -74,7 +87,8 @@ See [acceptance.md](./acceptance.md) for testable technical outcomes.
 
 - Fetching secrets in Client Components
 - Direct LLM SDK calls outside AI gateway (digital-twin)
-- Duplicating Prisma queries across multiple components
+- Prisma or business logic in components
+- Duplicating business logic across features
 
 ## Future Improvements
 
@@ -82,6 +96,7 @@ Listed in [tasks.md](./tasks.md) under "Future" section.
 
 ## References
 
+- [Engineering Architecture](../../01-architecture/engineering-architecture.md)
 - [Frontend Architecture](../../01-architecture/frontend.md)
 - [Monorepo](../../01-architecture/monorepo.md)
 - [Brief](./brief.md) · [UX](./ux.md) · [Acceptance](./acceptance.md)
