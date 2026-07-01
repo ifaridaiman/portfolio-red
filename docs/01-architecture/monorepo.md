@@ -58,7 +58,7 @@ packages:
   - "packages/*"
 ```
 
-**Package manager:** `pnpm@9.0.0` with workspace protocol (`workspace:*`) for internal dependencies.
+**Package manager:** `pnpm@11.9.0` with workspace protocol (`workspace:*`) for internal dependencies.
 
 ---
 

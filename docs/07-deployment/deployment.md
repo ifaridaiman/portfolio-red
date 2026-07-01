@@ -24,8 +24,8 @@ Deployment of `apps/web` to production. Database and observability setup include
 
 ### Prerequisites
 
-- Node.js ≥ 18 (20 recommended)
-- pnpm 9 (`corepack enable && corepack prepare pnpm@9.0.0 --activate`)
+- Node.js ≥ 26 (latest LTS/current recommended; see `.nvmrc`)
+- pnpm 11 (`corepack enable && corepack prepare pnpm@11.9.0 --activate`)
 - Docker (optional, for local PostgreSQL)
 
 ### Setup

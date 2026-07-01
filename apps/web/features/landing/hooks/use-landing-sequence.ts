@@ -33,22 +33,24 @@ function stageIndex(stage: LandingStage): number {
 
 export function useLandingSequence() {
   const prefersReducedMotion = useReducedMotion();
-  const [stage, setStage] = useState<LandingStage>(
-    prefersReducedMotion ? "cta" : "arrival",
-  );
+  const [animatedStage, setAnimatedStage] = useState<LandingStage>("arrival");
 
   useEffect(() => {
     if (prefersReducedMotion) {
-      setStage("cta");
       return;
     }
 
     const timers = STAGES.map((nextStage) =>
-      window.setTimeout(() => setStage(nextStage), STAGE_DELAYS[nextStage]),
+      window.setTimeout(
+        () => setAnimatedStage(nextStage),
+        STAGE_DELAYS[nextStage],
+      ),
     );
 
     return () => timers.forEach(clearTimeout);
   }, [prefersReducedMotion]);
+
+  const stage: LandingStage = prefersReducedMotion ? "cta" : animatedStage;
 
   const isAtLeast = (target: LandingStage) =>
     stageIndex(stage) >= stageIndex(target);
