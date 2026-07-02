@@ -7,17 +7,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build static site
+  build-and-deploy:
+    name: Build and deploy static site
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -69,19 +67,23 @@ jobs:
           DIRECT_URL: postgresql://postgres:postgres@localhost:5432/portfolio_red?schema=public
         run: pnpm exec turbo build --filter=web
 
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: apps/web/out
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/web/out
+          publish_branch: gh-pages
 
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish site URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pages_url="https://ifaridaiman.github.io/portfolio-red/"
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            echo "Site URL: $pages_url"
+          else
+            echo "::warning::Static files were pushed to the gh-pages branch, but GitHub Pages is not enabled yet."
+            echo "::warning::Open https://github.com/${{ github.repository }}/settings/pages"
+            echo "::warning::Set Source to 'Deploy from a branch', branch 'gh-pages', folder '/ (root)'."
+            echo "::warning::After saving, the site will be available at $pages_url"
+          fi
