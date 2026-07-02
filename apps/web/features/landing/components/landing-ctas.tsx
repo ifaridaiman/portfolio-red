@@ -40,13 +40,13 @@ export function LandingCtas({ visible }: LandingCtasProps) {
       >
         <Button
           nativeButton={false}
-          render={<Link href="/assistant" />}
+          render={<Link href="/contact" />}
           variant="outline"
           size="lg"
           className="h-11 w-full sm:h-10 sm:min-w-[200px] sm:w-auto"
         >
           <MessageSquare data-icon="inline-start" />
-          <span className="truncate">Talk to my Digital Twin</span>
+          <span className="truncate">Get in Touch</span>
         </Button>
       </motion.div>
     </motion.div>
