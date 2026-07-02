@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
 import { ProjectDetailPage } from "@/features/projects";
-
-export const dynamic = "force-dynamic";
+import { getPublishedProjectSummaries } from "@/features/projects/use-cases/get-project-summaries";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateStaticParams() {
+  try {
+    const projects = await getPublishedProjectSummaries();
+    return projects.map((project) => ({ slug: project.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
