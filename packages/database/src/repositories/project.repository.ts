@@ -8,12 +8,27 @@ export class ProjectRepository {
     return this.db.project.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { publishedAt: "desc" },
+      include: {
+        tags: { include: { tag: true } },
+      },
+    });
+  }
+
+  findPublishedBySlug(slug: string) {
+    return this.db.project.findFirst({
+      where: { slug, status: "PUBLISHED" },
+      include: {
+        tags: { include: { tag: true } },
+      },
     });
   }
 
   findBySlug(slug: string) {
     return this.db.project.findUnique({
       where: { slug },
+      include: {
+        tags: { include: { tag: true } },
+      },
     });
   }
 
