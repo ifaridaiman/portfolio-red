@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { ProjectsListPage } from "@/features/projects";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "Projects — Farid",
   description:
